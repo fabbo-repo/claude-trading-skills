@@ -175,7 +175,11 @@ def test_real_client_failure_survives_legacy_fallback(monkeypatch, tmp_path, sta
     report = json.loads(next(tmp_path.glob("*.json")).read_text())
     assert report["evaluation_coverage"]["verdict"] == "not_evaluable"
     assert report["evaluation_coverage"]["not_evaluated_reasons"] == {reason: 2}
-    assert len(calls) == 2  # no benchmark fetch when no symbols passed the quote stage
+    # One stable + one v3 quote attempt per symbol (quotes are fetched one
+    # symbol at a time), and no benchmark fetch when no symbols passed the
+    # quote stage.
+    assert len(calls) == 4
+    assert all("quote" in url for url in calls)
     assert "fictional-key" not in json.dumps(report)
 
 
